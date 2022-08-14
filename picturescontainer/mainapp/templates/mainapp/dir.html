@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            {{ dirname }}
+        </title>
+    </head>
+    <body>
+        <a href="/"> Назад </a>
+
+        <h1> {{ dirname }} </h1>
+
+        {% if is_guest %}
+            <p> Эта папка не ваша. Она принадлежит {{ creator }}.</p>
+        {% else %}
+            <p> Эта папка ваша.</p>
+            <p> Вы можете дать доступ к ней другим пользователям: </p>
+            <form action="{% url 'addallowtouser' dirname %}" method="post">
+                {% csrf_token %}
+
+                <p>
+                    Поставьте галочку, чтобы пользователь, которому 
+                    дают разрешение мог добавлять свои файлы.
+                </p>
+                <input type="checkbox" name="can_add"/>
+
+                <input type="text" name="username" />
+
+                <input type="submit" value="Дать доступ"/>
+            </form>
+        {% endif %}
+
+        {% if can_add %}
+            <p> Вы можете добавлять файлы в эту папку: </p>
+            <form action="{% url 'addpicturetodir' dirname %}" enctype="multipart/form-data" method="post">
+                {% csrf_token %}
+
+                <p>
+                    <input type="file" name="file" />
+                </p>
+
+                <input type="submit" value="Добавить файл"/> 
+            </form>
+        {% endif %}
+
+        <h2> А вот что есть в папке: </h2>
+
+        <table>
+            {% for picture in pictures %}
+                <tr>
+                    <td>
+                        <img src="{{ picture.url }}" />
+                    </td>
+                    <td> <a href="{{ picture.url }}" download> Скачать </a></td> <br>
+                </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Картинки </title>
+</head>
+<body>
+    <h2> Добро пожаловать на сайт для хранения картинок </h2>
+    {% if error_message != '' %}
+            <tr>
+                {{ error_message }}
+            </tr>
+    {% endif %}
+    <br> <br> <br> <br>
+    {% if is_auth %}
+        <h3> Добрый день, {{ username }}</h3>
+        <a href="{% url 'exit' %}"> Нажмите сюда, чтобы выйти </a>
+        <h2> Список ваших папок с картинками: </h2>
+
+        <table>
+            {% for dir in dirs %}
+                <tr><a href="{% url 'dirs' username dir %}"> {{ dir }} </a></tr> <br>
+            {% endfor %}
+        </table>
+
+        <h2> Список папок, на которые вам дали доступ ваши друзья: </h2>
+
+        <table>
+            {% for frienddir in frienddirs %}
+                <tr><a href="{% url 'dirs' frienddir.username frienddir.dirname %}"> 
+                    {{ frienddir.dirname }} 
+                </a></tr> <br>
+            {% endfor %}
+        </table>
+
+
+        <h2> Создать новую папку можно здесь: </h2>
+
+        <form action="{% url 'createdir' %}" method="post" >
+            {% csrf_token %}
+
+            <h3> Имя папки: </h3>
+            <input name="directory_name" type="text">
+
+            <input type="submit" value="Создать новую папку">
+
+        </form>
+
+    {% else %}
+        <h3> Вы не зарегистрированы или не вошли в аккаунт. Сделайте это прямо здесь: </h3>
+
+        <input id="register_checkbox" type="checkbox" onchange="f()">
+        <p> Вы регистрируетесь? </p>
+
+        <br> <br>
+
+        <form action="{% url 'register' %}" method="post" id="f1">
+            {% csrf_token %}
+            <div>
+                <h4> Регистрация </h4>
+            
+                <h5> Логин: </h5>
+                <input name="username" type="text">
+
+                <h5> Пароль: </h5>
+                <input id="p1" name="password" type="password">
+
+                <h5> Введите пароль повторно: </h5>
+                <input id="p2" type="password">
+
+                <h5 id="reg_message" style="color: red"> Пароль повторно введён не верно </h5>
+            </div>
+            
+            <br><br>
+            <input type="submit" onclick="check_password(event)" value="Зарегестрироваться">
+        </form>
+
+        <form action="{% url 'enter' %}" method="post" id="f2">
+            {% csrf_token %}
+
+            <div>
+                <h4> Вход </h4>
+                
+                <h5> Логин: </h5>
+                <input name="username" type="text">
+
+                <h5> Пароль: </h5>
+                <input name="password" type="password">
+
+            </div>
+
+            <br><br>
+            <input type="submit" value="Войти">
+        </form>
+    {% endif %}
+
+    <script>
+
+        var is_register = true;
+        var f1 = document.getElementById('f1');
+        var f2 = document.getElementById('f2');
+        var register_checkbox = document.getElementById('register_checkbox');
+        var p1 = document.getElementById('p1');
+        var p2 = document.getElementById('p2');
+        var reg_message = document.getElementById('reg_message');
+
+        register_checkbox.checked = false;
+        f1.hidden = true;
+        reg_message.hidden = true;
+
+        function f(e){
+            is_register = !is_register;
+            if (is_register){
+                f1.hidden = true;
+                f2.hidden = false;
+            } else {
+                f1.hidden = false;
+                f2.hidden = true;
+            }
+        }
+
+        function check_password(e){
+            console.log("Checking entered password...");
+            if (p1.value != p2.value){
+                console.log("No match");
+                reg_message.hidden = false;
+                e.preventDefault();
+            }
+        }
+    </script>
+</body>
+</html>
